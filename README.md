@@ -69,6 +69,13 @@ npm run preview
 - Conflict and constraint items require consequence and action.
 - Every metadata or checklist update creates a history entry with initials and before/after summaries.
 
+## Vercel note
+
+- Local development uses `data/db.json` directly.
+- On Vercel, the app now boots from the seeded data and writes runtime changes to `/tmp/tjekskema-db.json` because the deployed app filesystem is read-only.
+- This makes the demo run without 500 errors, but the data is still ephemeral on Vercel and can reset on cold starts, new instances, or redeploys.
+- For real persistence on Vercel, move the repository layer to SQLite/Postgres/KV/Blob instead of local files.
+
 ## Notes for future work
 
 - Replace JSON persistence with SQLite/Prisma when multi-user or more complex querying is needed.

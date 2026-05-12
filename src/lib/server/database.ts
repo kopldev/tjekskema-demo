@@ -17,16 +17,14 @@ import { getCurrentUser } from '$lib/server/current-user';
 import { createProjectSummary, groupItemsByTopic } from '$lib/server/project-summary';
 import { createSeedDatabase } from '$lib/server/seed';
 
-const dataFilePath = resolve(process.cwd(), 'data', 'db.json');
+const sourceSeedFilePath = resolve(process.cwd(), 'data', 'db.json');
+const runtimeDataFilePath = process.env.VERCEL ? '/tmp/tjekskema-db.json' : sourceSeedFilePath;
 // TODO: Swap this file-backed repository for SQLite/Prisma or external systems without changing the route layer.
 
-function clone<T>(value: T): T {
-	return JSON.parse(JSON.stringify(value)) as T;
-}
-
-async function ensureDatabaseFile() {
+async function createSeedSnapshot() {
 	try {
-		await readFile(dataFilePath, 'utf8');
+		const bundledSeed = await readFile(sourceSeedFilePath, 'utf8');
+		return JSON.parse(bundledSeed) as Database;
 	} catch (error) {
 		const nodeError = error as NodeJS.ErrnoException;
 
@@ -34,19 +32,37 @@ async function ensureDatabaseFile() {
 			throw error;
 		}
 
-		await mkdir(dirname(dataFilePath), { recursive: true });
-		await writeFile(dataFilePath, JSON.stringify(createSeedDatabase(), null, 2), 'utf8');
+		return createSeedDatabase();
+	}
+}
+
+function clone<T>(value: T): T {
+	return JSON.parse(JSON.stringify(value)) as T;
+}
+
+async function ensureDatabaseFile() {
+	try {
+		await readFile(runtimeDataFilePath, 'utf8');
+	} catch (error) {
+		const nodeError = error as NodeJS.ErrnoException;
+
+		if (nodeError.code !== 'ENOENT') {
+			throw error;
+		}
+
+		await mkdir(dirname(runtimeDataFilePath), { recursive: true });
+		await writeFile(runtimeDataFilePath, JSON.stringify(await createSeedSnapshot(), null, 2), 'utf8');
 	}
 }
 
 async function readDatabase(): Promise<Database> {
 	await ensureDatabaseFile();
-	const raw = await readFile(dataFilePath, 'utf8');
+	const raw = await readFile(runtimeDataFilePath, 'utf8');
 	return JSON.parse(raw) as Database;
 }
 
 async function saveDatabase(database: Database) {
-	await writeFile(dataFilePath, JSON.stringify(database, null, 2), 'utf8');
+	await writeFile(runtimeDataFilePath, JSON.stringify(database, null, 2), 'utf8');
 }
 
 function getProjectItems(database: Database, projectId: string) {
