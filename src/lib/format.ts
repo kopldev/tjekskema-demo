@@ -54,3 +54,22 @@ export function isPastDue(value: string | null | undefined): boolean {
 export function presentText(value: string | null | undefined, fallback = 'Ikke angivet'): string {
 	return value && value.trim().length > 0 ? value.trim() : fallback;
 }
+
+export function formatProjectDisplayId(
+	caseNumber: string | null | undefined,
+	createdAt: string | null | undefined
+): string {
+	const value = caseNumber?.trim() ?? '';
+	const yearMatch = value.match(/(20\d{2})/);
+	const numberMatches = [...value.matchAll(/(\d+)/g)];
+	const sequence = numberMatches.at(-1)?.[1] ?? '';
+	const createdYear = createdAt ? new Date(createdAt).getFullYear().toString() : '';
+	const year = (yearMatch?.[1] ?? createdYear).slice(-2);
+	const normalizedSequence = sequence.replace(/^0+/, '') || '0';
+
+	if (!year) {
+		return value || 'Ukendt id';
+	}
+
+	return `${year}000${normalizedSequence.padStart(2, '0')}`;
+}

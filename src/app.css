@@ -665,14 +665,11 @@ p {
 }
 
 .table-like li {
-	display: grid;
-	grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 0.7fr));
-	gap: 0.8rem;
-	align-items: center;
-	padding: 1rem;
+	padding: 0;
 	border-radius: 16px;
 	background: rgba(255, 255, 255, 0.72);
 	border: 1px solid rgba(21, 52, 41, 0.08);
+	overflow: hidden;
 }
 
 .table-like__header {
@@ -691,13 +688,22 @@ p {
 }
 
 .project-link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.6rem 1rem;
+	padding: 1rem 1.1rem;
 	font-weight: 700;
 }
 
-.project-link small {
-	display: block;
-	margin-top: 0.2rem;
-	font-weight: 400;
+.project-link__title {
+	font-size: 1.05rem;
+}
+
+.project-link__id {
+	font-size: 0.95rem;
+	font-weight: 600;
 	color: var(--ink-soft);
 }
 
