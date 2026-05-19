@@ -6,11 +6,9 @@ export const load: PageServerLoad = async () => {
 	const totals = projects.reduce(
 		(accumulator, entry) => {
 			accumulator.conflicts += entry.summary.conflictCount;
-			accumulator.constraints += entry.summary.constraintCount;
-			accumulator.openActions += entry.summary.openActionsCount;
 			return accumulator;
 		},
-		{ conflicts: 0, constraints: 0, openActions: 0 }
+		{ conflicts: 0 }
 	);
 
 	return {
